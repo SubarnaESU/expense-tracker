@@ -67,8 +67,10 @@ def init_db():
     conn.commit()
     conn.close()
 
-init_db()
-
+try:
+    init_db()
+except Exception as e:
+    print("Database already initialized or temporary path write restricted:", e)
 # --- ROUTES ---
 @app.route('/register', methods=['GET', 'POST'])
 def register():
