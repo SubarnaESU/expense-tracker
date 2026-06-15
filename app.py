@@ -11,7 +11,8 @@ app_instance = app
 
 # --- DATABASE PATH CONFIGURATION (Dual Support) ---
 if os.environ.get('VERCEL'):
-    DB_PATH = '/tmp/expenses.db'
+    # Vercel cloud server write blocks-ai thavirka RAM memory database எடுக்கும்
+    DB_PATH = ':memory:'
 else:
     BASE_DIR = os.path.abspath(os.path.dirname(__file__))
     DB_PATH = os.path.join(BASE_DIR, 'expenses.db')
@@ -67,10 +68,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-try:
-    init_db()
-except Exception as e:
-    print("Database already initialized or temporary path write restricted:", e)
+
 # --- ROUTES ---
 @app.route('/register', methods=['GET', 'POST'])
 def register():
