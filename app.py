@@ -1,45 +1,30 @@
 import os
 import json
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 app = Flask(__name__, template_folder='templates')
+app.secret_key = 'ss_expense_tracker_secure_super_key'
 
-# Flask production session encryption framework key
-app.secret_key = 'ss_expense_tracker_university_key'
-
-# --- DATA STORAGE BYPASS (Vercel-il database crash thavirka local dictionaries) ---
+# --- DATA STORAGE BYPASS (Mutrilumaaga framework crash thavirkkum in-memory array) ---
 USERS_DB = {"1": {"username": "admin"}}
 EXPENSES_DB = []
 BUDGETS_DB = {}
 
-# --- FLASK LOGIN CONFIGURATION ---
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-class User(UserMixin):
+# Mock User object setup to keep index.html variables perfectly functional
+class MockCurrentUser:
     def __init__(self, id, username):
         self.id = str(id)
         self.username = username
+        self.is_authenticated = True
 
-@login_manager.user_loader
-def load_user(user_id):
-    uid = str(user_id)
-    if uid in USERS_DB:
-        return User(uid, USERS_DB[uid]["username"])
-    return User(uid, "User")
-
-# --- APP ROUTING CONTROL ---
+# --- ROUTES ---
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form.get('username')
         next_id = str(len(USERS_DB) + 1)
-        
-        # Dictionary-il puthiya dynamic user registration details save aahuthal
         USERS_DB[next_id] = {"username": username}
         flash('Registration successful! Please login.', 'success')
         return redirect(url_for('login'))
@@ -50,31 +35,36 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         
-        # User details automatic matching pipeline setup
+        # Checking profile allocation pipeline
         matched_id = "1"
         for uid, info in USERS_DB.items():
             if info["username"] == username:
                 matched_id = uid
                 break
-                
-        user = User(matched_id, username)
-        login_user(user)
+        
+        # Native flask session optimization management        
+        session['user_id'] = matched_id
+        session['username'] = username
         return redirect(url_for('index'))
     return render_template('login.html')
 
 @app.route('/logout')
-@login_required
 def logout():
-    logout_user()
+    session.clear()
     return redirect(url_for('login'))
 
 @app.route('/')
-@login_required
 def index():
+    # User session validate filter security rule
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    current_user = MockCurrentUser(session['user_id'], session['username'])
+    
     current_month_str = datetime.now().strftime("%Y-%m")
     selected_month = request.args.get('month', current_month_str)
     
-    # User ID matrum custom month analysis verification filters
+    # Filter memory logic parsing arrays safely
     filtered_expenses = [ex for ex in EXPENSES_DB if str(ex['user_id']) == str(current_user.id) and ex['expense_month'] == selected_month]
     
     expenses = []
@@ -98,7 +88,7 @@ def index():
     
     is_over_budget = True if (budget_raw > 0 and total_amount_raw > budget_raw) else False
 
-    # Charts configuration components visualization setup
+    # Charts execution values mapping configuration
     cat_totals = {}
     for ex in filtered_expenses:
         cat = ex['category'] if ex['category'] else 'General'
@@ -111,12 +101,12 @@ def index():
     chart_labels = list(cat_totals.keys())
     chart_values = list(cat_totals.values())
 
-    # User timeline month tracking filter framework
     user_months = set([ex['expense_month'] for ex in EXPENSES_DB if str(ex['user_id']) == str(current_user.id)])
     user_months.add(current_month_str)
     available_months = sorted(list(user_months), reverse=True)
 
     return render_template('index.html', 
+                           current_user=current_user,
                            expenses=expenses, 
                            total_amount=total_amount, 
                            budget=budget, 
@@ -127,8 +117,11 @@ def index():
                            selected_month=selected_month)
 
 @app.route('/add', methods=['POST'])
-@login_required
 def add():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    current_user = MockCurrentUser(session['user_id'], session['username'])
     amount = request.form.get('amount')
     category = request.form.get('category')
     description = request.form.get('description')
@@ -158,8 +151,11 @@ def add():
     return redirect(url_for('index', month=expense_month))
 
 @app.route('/update_budget', methods=['POST'])
-@login_required
 def update_budget():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    current_user = MockCurrentUser(session['user_id'], session['username'])
     new_budget = request.form.get('budget_amount')
     selected_month = request.args.get('month') or request.form.get('current_selected_month') or datetime.now().strftime("%Y-%m")
     
@@ -168,12 +164,14 @@ def update_budget():
     return redirect(url_for('index', month=selected_month))
 
 @app.route('/delete/<int:id>')
-@login_required
 def delete(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    current_user = MockCurrentUser(session['user_id'], session['username'])
     global EXPENSES_DB
     selected_month = request.args.get('month', datetime.now().strftime("%Y-%m"))
     EXPENSES_DB = [ex for ex in EXPENSES_DB if not (ex['id'] == id and str(ex['user_id']) == str(current_user.id))]
     return redirect(url_for('index', month=selected_month))
 
-# Required production serverless environment optimization setting
 app.debug = False
