@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enterprise Expense Application</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -57,7 +57,7 @@
         /* Chart Section */
         .chart-section { background: #ffffff; padding: 30px; border-radius: 18px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .chart-section h3 { font-size: 18px; color: #0f172a; margin-bottom: 15px; font-weight: 700; align-self: flex-start; }
-        .chart-wrapper { width: 100%; max-width: 240px; }
+        .chart-wrapper { width: 100%; max-width: 240px; display: flex; justify-content: center; align-items: center; min-height: 240px; }
 
         /* Table Section */
         .table-section h3 { font-size: 20px; color: #0f172a; margin-bottom: 15px; font-weight: 700; }
@@ -104,9 +104,9 @@
                     <div class="card-title">Allocated Budget Threshold ({{ selected_month }})</div>
                     <div class="card-amount">LKR {{ budget }}</div>
                 </div>
-                <form action="/update_budget?month={{ selected_month }}" method="POST" class="budget-form">
+                <form action="/update_budget" method="POST" class="budget-form">
                     <input type="hidden" name="current_selected_month" value="{{ selected_month }}">
-                    <input type="number" name="budget_amount" class="budget-input" placeholder="Update Limit" required>
+                    <input type="number" step="0.01" name="budget_amount" class="budget-input" placeholder="Update Limit" required>
                     <button type="submit" class="budget-btn"><i class="fa-solid fa-check"></i> Set</button>
                 </form>
             </div>
@@ -130,7 +130,7 @@
                 <form action="/add" method="POST">
                     
                     <label for="custom_month">Select Statement Month</label>
-<input type="month" id="custom_month" name="custom_month" value="{{ selected_month }}" onchange="window.location.href = '/?month=' + this.value" required>
+                    <input type="month" id="custom_month" name="custom_month" value="{{ selected_month }}" required>
                     
                     <label for="amount">Amount (LKR)</label>
                     <input type="number" step="0.01" id="amount" name="amount" placeholder="0.00" required>
@@ -202,7 +202,7 @@
         const chartLabels = {{ chart_labels | safe }};
         const chartValues = {{ chart_values | safe }};
 
-        if (chartLabels.length === 0) {
+        if (!chartLabels || chartLabels.length === 0) {
             ctx.font = "14px 'Plus Jakarta Sans'";
             ctx.fillStyle = "#64748b";
             ctx.textAlign = "center";
@@ -221,9 +221,16 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: false
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: "'Plus Jakarta Sans'"
+                                }
+                            }
                         }
                     },
                     cutout: '70%'
