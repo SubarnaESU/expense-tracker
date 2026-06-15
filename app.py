@@ -11,8 +11,14 @@ app.secret_key = 'your_university_project_key'
 
 # --- DATABASE PATH CONFIGURATION ---
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DB_PATH = os.path.join(BASE_DIR, 'expenses.db')
-
+# --- DATABASE PATH CONFIGURATION ---
+if os.environ.get('VERCEL'):
+    # Vercel cloud-il run aagum pothu temporary path எடுக்கும்
+    DB_PATH = '/tmp/expenses.db'
+else:
+    # Ungaloda local computer-il run aagum pothu sariyaana local path எடுக்கும்
+    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+    DB_PATH = os.path.join(BASE_DIR, 'expenses.db')
 # --- LOGIN MANAGER SETUP ---
 login_manager = LoginManager()
 login_manager.init_app(app)
