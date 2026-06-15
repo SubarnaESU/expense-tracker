@@ -69,14 +69,23 @@ def index():
     
     total_amount = "{:,.2f}".format(total_amount_raw)
     
+    # --- UPDATED BUDGET RESET & ALERT LOGIC ---
     budget_key = f"{current_user.id}_{selected_month}"
-    try:
-        budget_raw = float(BUDGETS_DB.get(budget_key, 0.0))
-    except Exception:
+    
+    # Selected month puthiya month-aaga irundhu, database-il budget innum set pannavillai endral auto-aaga 0.0 aahum
+    if selected_month != current_month_str and budget_key not in BUDGETS_DB:
         budget_raw = 0.0
+    else:
+        try:
+            budget_raw = float(BUDGETS_DB.get(budget_key, 0.0))
+        except Exception:
+            budget_raw = 0.0
+            
     budget = "{:,.2f}".format(budget_raw)
     
+    # Budget raw 0-aaga irukkum pothu automatically dynamic red alert "False" (Hidden) aahivuidum
     is_over_budget = True if (budget_raw > 0 and total_amount_raw > budget_raw) else False
+    # ------------------------------------------
 
     cat_totals = {}
     for ex in filtered_expenses:
