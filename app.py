@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app_instance = app  
 
 # --- DATABASE PATH CONFIGURATION (Dual Support) ---
