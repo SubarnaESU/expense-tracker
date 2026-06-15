@@ -3,35 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Expense Tracker</title>
+    <title>Login - SS Expense Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        h2 { color: #2c3e50; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #2c3e50; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        button:hover { background: #34495e; }
-        .flash-msg { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; }
-        p { font-size: 14px; color: #666; margin-top: 20px; }
-        a { color: #3498db; text-decoration: none; font-weight: bold; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 380px; text-align: center; border: 1px solid #e2e8f0; }
+        h2 { color: #0f172a; margin-bottom: 24px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        label { text-align: left; display: block; font-weight: 600; color: #475569; font-size: 13px; margin-top: 12px; }
+        input { width: 100%; padding: 12px 14px; margin-top: 6px; margin-bottom: 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; box-sizing: border-box; background: #f8fafc; outline: none; transition: border 0.2s; }
+        input:focus { border-color: #2563eb; }
+        button { width: 100%; padding: 12px; background: linear-gradient(to right, #2563eb, #3b82f6); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        button:hover { background: linear-gradient(to right, #1d4ed8, #2563eb); }
+        .flash-msg { background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; font-weight: 500; border: 1px solid #fca5a5; }
+        p { font-size: 14px; color: #64748b; margin-top: 24px; }
+        a { color: #2563eb; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <h2>🔒 Account Login</h2>
+        <h2><i class="fa-solid fa-lock" style="color:#2563eb;"></i> Account Login</h2>
         
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             {% for message in messages %}
-              <div class="flash-msg">{{ message }}</div>
+              <div class="flash-msg"><i class="fa-solid fa-circle-exclamation"></i> {{ message }}</div>
             {% endfor %}
           {% endif %}
         {% endwith %}
 
         <form action="/login" method="POST">
+            <label>Username</label>
             <input type="text" name="username" placeholder="Enter Username" required>
+            
+            <label>Password</label>
             <input type="password" name="password" placeholder="Enter Password" required>
+            
             <button type="submit">Sign In</button>
         </form>
         
