@@ -23,7 +23,7 @@
         /* Filter Bar */
         .month-filter-bar { background: #ffffff; padding: 18px 24px; border-radius: 16px; margin-bottom: 30px; display: flex; align-items: center; gap: 15px; border: 1px solid #e2e8f0; }
         .month-filter-bar label { font-weight: 600; color: #475569; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-        .month-select { padding: 8px 16px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 15px; background: #f8fafc; font-weight: 600; color: #1e293b; cursor: pointer; outline: none; }
+        .month-select { padding: 8px 16px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 15px; background: #f8fafc; font-weight: 600; color: #1e293b; cursor: pointer; outline: none; width: auto; }
 
         /* Dashboard Overview Cards */
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 35px; }
@@ -38,8 +38,8 @@
         .card-title { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8; font-weight: 600; margin-bottom: 8px; }
         .card-amount { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
         
-        .budget-form { display: flex; gap: 8px; }
-        .budget-input { width: 130px; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 14px; outline: none; }
+        .budget-form { display: flex; gap: 8px; flex-wrap: wrap; }
+        .budget-input { width: 130px; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 14px; outline: none; flex-grow: 1; }
         .budget-btn { padding: 8px 14px; background: #f97316; border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 13px; cursor: pointer; }
         
         .alert-container-text { font-size: 13px; display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; font-weight: 500; }
@@ -61,8 +61,8 @@
 
         /* Table Section */
         .table-section h3 { font-size: 20px; color: #0f172a; margin-bottom: 15px; font-weight: 700; }
-        .table-container { border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; }
-        table { width: 100%; border-collapse: collapse; background: white; text-align: left; font-size: 14px; }
+        .table-container { border-radius: 16px; overflow-x: auto; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; background: white; text-align: left; font-size: 14px; min-width: 600px; }
         th { background-color: #f8fafc; color: #64748b; font-weight: 600; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; font-size: 12px; }
         td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; color: #334155; }
         
@@ -74,6 +74,27 @@
         .cat-Other { background: #e2e8f0; color: #334155; }
 
         .delete-link { color: #ef4444; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+
+        /* ========================================================
+           📱 MOBILE RESPONSIVENESS MEDIA QUERIES (UPDATED SMART LAYOUT)
+           ======================================================== */
+        @media (max-width: 768px) {
+            body { padding: 15px 10px; }
+            .container { padding: 20px 15px; border-radius: 16px; }
+            
+            .header { flex-direction: column; gap: 15px; align-items: flex-start; text-align: left; }
+            .header div { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+            
+            .month-filter-bar { flex-direction: column; align-items: flex-start; gap: 10px; padding: 15px; }
+            .month-filter-bar form, .month-select { width: 100%; }
+
+            .dashboard-grid { grid-template-columns: 1fr; gap: 16px; }
+            .card { min-height: 140px; padding: 18px; }
+            .card-amount { font-size: 26px; }
+
+            .main-content { grid-template-columns: 1fr; gap: 20px; }
+            .form-section, .chart-section { padding: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -197,19 +218,16 @@
     </div>
 
     <script>
-        // --- NATIVE CALENDAR PICKER AUTO-RELOAD INTERACTION LOGIC ---
         const calendarPicker = document.getElementById('custom_month');
         if (calendarPicker) {
             calendarPicker.addEventListener('change', function() {
-                const targetMonth = this.value; // Get selected value format "YYYY-MM"
+                const targetMonth = this.value;
                 if (targetMonth) {
-                    // Instantly sync the global dashboard view using URL query params
                     window.location.href = "/?month=" + targetMonth;
                 }
             });
         }
 
-        // --- CHART GENERATION CODE ---
         const ctx = document.getElementById('expenseChart').getContext('2d');
         
         const chartLabels = {{ chart_labels | safe }};
