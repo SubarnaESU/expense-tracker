@@ -197,6 +197,19 @@
     </div>
 
     <script>
+        // --- NATIVE CALENDAR PICKER AUTO-RELOAD INTERACTION LOGIC ---
+        const calendarPicker = document.getElementById('custom_month');
+        if (calendarPicker) {
+            calendarPicker.addEventListener('change', function() {
+                const targetMonth = this.value; // Get selected value format "YYYY-MM"
+                if (targetMonth) {
+                    // Instantly sync the global dashboard view using URL query params
+                    window.location.href = "/?month=" + targetMonth;
+                }
+            });
+        }
+
+        // --- CHART GENERATION CODE ---
         const ctx = document.getElementById('expenseChart').getContext('2d');
         
         const chartLabels = {{ chart_labels | safe }};
