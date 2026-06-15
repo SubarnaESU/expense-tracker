@@ -7,7 +7,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'your_university_project_key'
+app_instance = app  
 
 # --- DATABASE PATH CONFIGURATION (Dual Support) ---
 if os.environ.get('VERCEL'):
