@@ -9,16 +9,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.secret_key = 'your_university_project_key'
 
-# --- DATABASE PATH CONFIGURATION ---
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-# --- DATABASE PATH CONFIGURATION ---
+# --- DATABASE PATH CONFIGURATION (Dual Support) ---
 if os.environ.get('VERCEL'):
-    # Vercel cloud-il run aagum pothu temporary path எடுக்கும்
     DB_PATH = '/tmp/expenses.db'
 else:
-    # Ungaloda local computer-il run aagum pothu sariyaana local path எடுக்கும்
     BASE_DIR = os.path.abspath(os.path.dirname(__file__))
     DB_PATH = os.path.join(BASE_DIR, 'expenses.db')
+
+# Vercel-ku mukhkiya entry point handler
+app_instance = app
+
 # --- LOGIN MANAGER SETUP ---
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -110,7 +110,6 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-# MAIN DASHBOARD ROUTE
 @app.route('/')
 @login_required
 def index():
@@ -120,7 +119,6 @@ def index():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # 1. Fetch Selected Month Expenses only
     cursor.execute('''
         SELECT id, amount, category, description, date 
         FROM expenses 
@@ -139,7 +137,6 @@ def index():
         formatted_amt = "{:,.2f}".format(val_float)
         expenses.append((ex[0], formatted_amt, ex[2], ex[3], ex[4]))
     
-    # 2. Total Calculation for Selected Month
     cursor.execute('SELECT SUM(amount) FROM expenses WHERE user_id = ? AND expense_month = ?', (current_user.id, selected_month))
     total_res = cursor.fetchone()[0]
     
@@ -150,7 +147,6 @@ def index():
         
     total_amount = "{:,.2f}".format(total_amount_raw)
     
-    # 3. Fetch User Budget for the Specific Selected Month (0.00 if empty)
     cursor.execute('SELECT budget_amount FROM budgets WHERE user_id = ? AND expense_month = ?', (current_user.id, selected_month))
     budget_res = cursor.fetchone()
     
@@ -161,10 +157,8 @@ def index():
         
     budget = "{:,.2f}".format(budget_raw)
     
-    # 4. Budget Alert Evaluation
     is_over_budget = True if (budget_raw > 0 and total_amount_raw > budget_raw) else False
 
-    # 5. Chart Data Fetching for Selected Month
     cursor.execute('SELECT category, SUM(amount) FROM expenses WHERE user_id = ? AND expense_month = ? GROUP BY category', (current_user.id, selected_month))
     chart_data_raw = cursor.fetchall()
     chart_labels = [row[0] for row in chart_data_raw]
@@ -175,7 +169,6 @@ def index():
         except Exception:
             chart_values.append(0.0)
 
-    # 6. Get Available Months List for Dropdown
     cursor.execute('SELECT DISTINCT expense_month FROM expenses WHERE user_id = ? ORDER BY expense_month DESC', (current_user.id,))
     available_months_raw = cursor.fetchall()
     available_months = [row[0] for row in available_months_raw if row[0] is not None]
@@ -200,11 +193,9 @@ def add():
     amount = float(request.form.get('amount'))
     category = request.form.get('category')
     description = request.form.get('description')
-    
     expense_month = request.form.get('custom_month') 
     
     now = datetime.now()
-    # [மாற்றம் செய்யப்பட்ட இடம்]: 24 மணிநேரத்திற்குப் பதிலாக AM/PM வடிவம் (%I:%M %p)
     current_time_str = now.strftime("%I:%M %p") 
     system_day = now.strftime("%d") 
     
