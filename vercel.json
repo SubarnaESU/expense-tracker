@@ -3,7 +3,6 @@
   "builds": [
     {
       "src": "app.py",
-      "config": { "maxDuration": 10 },
       "use": "@vercel/python"
     }
   ],
