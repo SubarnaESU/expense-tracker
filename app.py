@@ -1,18 +1,20 @@
 import os
 import json
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__, template_folder='templates')
-app.secret_key = 'your_university_project_key'
 
-# --- DATA STORAGE BYPASS (No SQLite Permission Blocks on Vercel) ---
+# Flask production session encryption framework key
+app.secret_key = 'ss_expense_tracker_university_key'
+
+# --- DATA STORAGE BYPASS (Vercel-il database crash thavirka local dictionaries) ---
 USERS_DB = {"1": {"username": "admin"}}
 EXPENSES_DB = []
 BUDGETS_DB = {}
 
-# --- LOGIN MANAGER SETUP ---
+# --- FLASK LOGIN CONFIGURATION ---
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -24,21 +26,20 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    # dynamic identifier verification
     uid = str(user_id)
     if uid in USERS_DB:
         return User(uid, USERS_DB[uid]["username"])
-    return User(uid, f"User_{uid}")
+    return User(uid, "User")
 
-def init_db():
-    pass
+# --- APP ROUTING CONTROL ---
 
-# --- ROUTES ---
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form.get('username')
         next_id = str(len(USERS_DB) + 1)
+        
+        # Dictionary-il puthiya dynamic user registration details save aahuthal
         USERS_DB[next_id] = {"username": username}
         flash('Registration successful! Please login.', 'success')
         return redirect(url_for('login'))
@@ -49,7 +50,7 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         
-        # dynamic ID allocation to match user profile session mapping
+        # User details automatic matching pipeline setup
         matched_id = "1"
         for uid, info in USERS_DB.items():
             if info["username"] == username:
@@ -73,7 +74,7 @@ def index():
     current_month_str = datetime.now().strftime("%Y-%m")
     selected_month = request.args.get('month', current_month_str)
     
-    # Filter memory expenses matching string format of current_user.id
+    # User ID matrum custom month analysis verification filters
     filtered_expenses = [ex for ex in EXPENSES_DB if str(ex['user_id']) == str(current_user.id) and ex['expense_month'] == selected_month]
     
     expenses = []
@@ -97,7 +98,7 @@ def index():
     
     is_over_budget = True if (budget_raw > 0 and total_amount_raw > budget_raw) else False
 
-    # Categories chart setup logic configuration
+    # Charts configuration components visualization setup
     cat_totals = {}
     for ex in filtered_expenses:
         cat = ex['category'] if ex['category'] else 'General'
@@ -110,7 +111,7 @@ def index():
     chart_labels = list(cat_totals.keys())
     chart_values = list(cat_totals.values())
 
-    # Timeline filter drop-down data assembly
+    # User timeline month tracking filter framework
     user_months = set([ex['expense_month'] for ex in EXPENSES_DB if str(ex['user_id']) == str(current_user.id)])
     user_months.add(current_month_str)
     available_months = sorted(list(user_months), reverse=True)
@@ -174,4 +175,5 @@ def delete(id):
     EXPENSES_DB = [ex for ex in EXPENSES_DB if not (ex['id'] == id and str(ex['user_id']) == str(current_user.id))]
     return redirect(url_for('index', month=selected_month))
 
-# Required setting adaptation for serverless routing
+# Required production serverless environment optimization setting
+app.debug = False
